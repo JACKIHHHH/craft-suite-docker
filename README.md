@@ -45,8 +45,9 @@ Abre `http://<ip-del-servidor>:8099`.
 - **Cambiar el nombre del contenedor** (por defecto `craftsuite`): `CRAFT_NAME=otra-suite` en el `.env`.
 - **Solo algunas apps:** `docker compose run --rm -e CRAFT_APPS="pdfcraft wordcraft gridcraft" actualizar`. La página de inicio sigue mostrando las 13; las que no descargues dan 404.
 - **Personalizar nombres e iconos:** crea `site/personalizar.json` (no se sube al repo), por ejemplo:
-  `{"titulo":"Mi suite","apps":{"pdfcraft":{"nombre":"PDF","desc":"Leer y firmar PDF","icono":"mis-iconos/pdf.png"}}}`
-- **Actualizar:** vuelve a lanzar `docker compose run --rm actualizar`. Solo descarga las apps que tengan versión nueva y no hace falta reiniciar nginx. Puedes programarlo, por ejemplo una vez por semana.
+  `{"titulo":"Mi suite","apps":{"pdfcraft":{"nombre":"PDF","desc":"Leer y editar PDF","icono":"mis-iconos/pdf.png"}}}`
+- **Actualizar:** vuelve a lanzar `docker compose run --rm actualizar`. Solo descarga las apps que tengan versión nueva y no hace falta reiniciar nginx.
+- **Actualizar solo cada semana:** pon `COMPOSE_PROFILES=auto` en el `.env` y haz `docker compose up -d`. Se arranca un contenedor pequeño que comprueba las versiones al arrancar y luego cada 7 días.
 
 ### Synology / Xpenology
 
@@ -66,14 +67,26 @@ Copia la carpeta a `/volume1/docker/craft-suite-docker` y, por SSH, lanza los mi
 
 ## HTTPS (recomendado)
 
-Por HTTP las apps funcionan, pero los navegadores solo activan **WebGPU** y el **portapapeles** en un contexto seguro (`https://` o `localhost`). Sin HTTPS, la página de inicio abre las apps con `?webgl` (WebGL2), porque en algunos navegadores el modo automático se queda con la pantalla en negro. Funciona bien, aunque va algo más lento en foto y vídeo. Si quieres HTTPS en la red local, pon delante un proxy inverso (Caddy, Nginx Proxy Manager, Traefik) con un certificado en el que confíen tus dispositivos.
+Por HTTP las apps funcionan, pero los navegadores solo activan **WebGPU** y el **portapapeles** en un contexto seguro (`https://` o `localhost`). Sin HTTPS, la página de inicio abre las apps con `?webgl` (WebGL2), porque en algunos navegadores el modo automático se queda con la pantalla en negro. Funciona bien, aunque va algo más lento en foto y vídeo. Sin HTTPS tampoco hay almacenamiento persistente: LightCraft puede perder su biblioteca si el navegador necesita espacio y EffectCraft no tiene caché en disco.
+
+Si quieres HTTPS en la red local, pon delante un proxy inverso (Caddy, Nginx Proxy Manager, Traefik) con un certificado en el que confíen tus dispositivos. Por ejemplo, con Caddy y su autoridad local:
+
+```caddyfile
+https://192.168.1.10:8100 {
+	tls internal
+	reverse_proxy craftsuite:80
+}
+```
+
+La página de inicio abre las apps siempre con `?webgl`: con HTTPS WebGPU está disponible, pero en algunas apps (EffectCraft) todavía pierde el dispositivo gráfico. Para probar WebGPU, abre la app sin `?webgl`.
 
 ## Limitaciones
 
 - Las apps están en **alfa**. Para trabajos importantes, guarda a menudo.
 - Los archivos se abren y se guardan con el selector de archivos y las descargas del navegador. No hay almacenamiento compartido en el servidor.
 - **Sonido:** algunos navegadores dejan en pausa el audio que la app crea al arrancar. `actualizar.sh` añade a cada app un pequeño parche que lo reanuda con el primer clic o toque.
-- **Firmar PDF:** PdfCraft web firma con un certificado en archivo (`.p12` / `.pfx`). Las tarjetas criptográficas (DNIe, tokens USB) no están disponibles desde el navegador.
+- **PhotoCraft 0.17** trae mal empaquetada la carpeta `snippets/` (la busca dentro de `app/`); `actualizar.sh` la copia a su sitio.
+- **Firmar con certificado no funciona en la versión web:** PdfCraft pide la ruta del `.p12`/`.pfx` y el navegador no tiene acceso al disco ("operation not supported on this platform"). Para firmar con certificado usa la app de escritorio de PdfCraft. Sí funcionan rellenar formularios y la firma manuscrita (dibujada o como imagen).
 - La impresión desde la versión web de PdfCraft todavía no está disponible.
 - Solo se ha probado en redes locales. Si lo publicas en internet, protégelo con autenticación.
 

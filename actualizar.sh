@@ -45,6 +45,15 @@ for f in site/*/index.html; do
   grep -q 'data-craft-audio' "$f" && continue
   awk -v s="$SHIM" '{print} /<head>/ && !d {print s; d=1}' "$f" > "$f.tmp" && mv "$f.tmp" "$f"
 done
+# Fallo de empaquetado (PhotoCraft 0.17): app/*.js importa ./snippets/…, pero el zip trae esa
+# carpeta un nivel más arriba. Se copia dentro de app/ cuando falta.
+for d in site/*/app; do
+  [ -d "$d" ] || continue
+  p=${d%/app}
+  if [ -d "$p/snippets" ] && [ ! -d "$d/snippets" ] && grep -qs "snippets/" "$d"/*.js; then
+    cp -R "$p/snippets" "$d/" && echo "${p#site/}: copiada snippets/ a app/"
+  fi
+done
 # Índice de versiones con todo lo instalado (no solo lo actualizado ahora)
 json="{"
 for d in site/*/.version; do [ -f "$d" ] || continue; a=${d#site/}; a=${a%/.version}; json="$json\"$a\":\"$(cat "$d")\","; done

@@ -25,3 +25,14 @@ services:
     volumes:
       - ./:/w
     command: ["sh", "/w/actualizar.sh"]
+
+  # Opcional: busca versiones nuevas al arrancar y luego una vez por semana.
+  # Se activa con COMPOSE_PROFILES=auto en el archivo .env
+  actualizar-semanal:
+    image: alpine:3.20
+    container_name: ${CRAFT_NAME:-craftsuite}-actualizar
+    profiles: ["auto"]
+    restart: unless-stopped
+    volumes:
+      - ./:/w
+    entrypoint: ["sh", "-c", "while true; do sh /w/actualizar.sh; sleep 604800; done"]

@@ -60,8 +60,9 @@ const grupos=[
   ["deckcraft","DeckCraft","Presentaciones · como PowerPoint"],
   ["cadcraft","CADCraft","Dibujo técnico · como AutoCAD"]]]
 ];
-// Sin HTTPS no hay WebGPU y el modo automático puede quedarse en negro: forzamos WebGL2
-const q=window.isSecureContext?"":"?webgl";
+// WebGL2 siempre: sin HTTPS el modo automático puede quedarse en negro y, con HTTPS, WebGPU
+// aún pierde el dispositivo gráfico en algunas apps (EffectCraft). Quita ?webgl para probar WebGPU.
+const q="?webgl";
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 // personalizar.json (opcional, no viene en el repo): {"titulo":"…","apps":{"photocraft":{"nombre":"…","desc":"…","icono":"…"}}}
 let ver={}, per={apps:{}};
