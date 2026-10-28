@@ -42,6 +42,7 @@ docker compose up -d
 Abre `http://<ip-del-servidor>:8099`.
 
 - **Cambiar el puerto:** `CRAFT_PORT=9000 docker compose up -d`, o pon `CRAFT_PORT=9000` en un archivo `.env`.
+- **Cambiar el nombre del contenedor** (por defecto `craftsuite`): `CRAFT_NAME=otra-suite` en el `.env`.
 - **Solo algunas apps:** `docker compose run --rm -e CRAFT_APPS="pdfcraft wordcraft gridcraft" actualizar`. La página de inicio sigue mostrando las 13; las que no descargues dan 404.
 - **Personalizar nombres e iconos:** crea `site/personalizar.json` (no se sube al repo), por ejemplo:
   `{"titulo":"Mi suite","apps":{"pdfcraft":{"nombre":"PDF","desc":"Leer y firmar PDF","icono":"mis-iconos/pdf.png"}}}`

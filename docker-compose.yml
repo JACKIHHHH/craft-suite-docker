@@ -4,7 +4,7 @@ services:
   # Servidor web: sirve las apps (archivos estáticos) en http://<ip>:8099
   craftsuite:
     image: nginx:1.27-alpine
-    container_name: craftsuite
+    container_name: ${CRAFT_NAME:-craftsuite}
     restart: unless-stopped
     ports:
       - "${CRAFT_PORT:-8099}:80"
