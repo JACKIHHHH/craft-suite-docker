@@ -63,14 +63,19 @@ const grupos=[
 // Sin HTTPS no hay WebGPU y el modo automático puede quedarse en negro: forzamos WebGL2
 const q=window.isSecureContext?"":"?webgl";
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-function pinta(ver){
+// personalizar.json (opcional, no viene en el repo): {"titulo":"…","apps":{"photocraft":{"nombre":"…","desc":"…","icono":"…"}}}
+let ver={}, per={apps:{}};
+function pinta(){
+ if(per.titulo){document.querySelector("h1").textContent=per.titulo;document.title=per.titulo;}
  document.getElementById("secciones").innerHTML=grupos.map(([t,apps])=>
-  `<h2>${esc(t)}</h2><div class="grid">`+apps.map(([id,n,d])=>
-   `<a class="app" href="${id}/${q}"><img src="icons/${id}.png" alt="" loading="lazy"><div><div class="n">${esc(n)}</div><div class="d">${esc(d)}</div>${ver[id]?`<div class="v">v${esc(ver[id])}</div>`:""}</div></a>`
-  ).join("")+`</div>`).join("");
+  `<h2>${esc(t)}</h2><div class="grid">`+apps.map(([id,n,d])=>{
+   const o=(per.apps||{})[id]||{};
+   return `<a class="app" href="${id}/${q}"><img src="${esc(o.icono||`icons/${id}.png`)}" alt="" loading="lazy"><div><div class="n">${esc(o.nombre||n)}</div><div class="d">${esc(o.desc||d)}</div>${ver[id]?`<div class="v">v${esc(ver[id])}</div>`:""}</div></a>`;
+  }).join("")+`</div>`).join("");
 }
-pinta({});
-fetch("versiones.json",{cache:"no-cache"}).then(r=>r.json()).then(pinta).catch(()=>{});
+pinta();
+const j=u=>fetch(u,{cache:"no-cache"}).then(r=>r.ok?r.json():null).catch(()=>null);
+Promise.all([j("versiones.json"),j("personalizar.json")]).then(([v,p])=>{if(v)ver=v;if(p)per=p;pinta();});
 </script>
 </body>
 </html>

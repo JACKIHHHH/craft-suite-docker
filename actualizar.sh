@@ -9,7 +9,6 @@ mkdir -p site/icons
 APPS="${CRAFT_APPS:-photocraft vectorcraft designcraft pdfcraft lightcraft filmcraft effectcraft soundcraft figcraft cadcraft wordcraft gridcraft deckcraft}"
 TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT
-json="{"
 for a in $APPS; do
   tag=$(curl -sSI "https://github.com/storytold/$a/releases/latest" | grep -i '^location:' | sed 's#.*/tag/##' | tr -d '\r\n ')
   v=${tag#v}
@@ -34,6 +33,17 @@ for a in $APPS; do
     curl -fsSL -o "site/icons/$a.png" \
       "https://raw.githubusercontent.com/storytold/$a/main/assets/app-icon/hicolor/$s/apps/ai.storyteller.$a.png" && break
   done || true
+done
+# Audio: algunos navegadores dejan en pausa el AudioContext que la app crea al arrancar (política
+# de autoplay) y no vuelve a sonar. Este parche lo reanuda con el primer clic, tecla o toque.
+SHIM=$(cat <<'EOF'
+<script data-craft-audio>(()=>{const L=[];for(const k of ['AudioContext','webkitAudioContext']){const O=window[k];if(!O)continue;const P=function(...a){const c=new O(...a);L.push(c);return c};P.prototype=O.prototype;Object.setPrototypeOf(P,O);window[k]=P;}const r=()=>L.forEach(c=>{if(c.state!=='running')c.resume().catch(()=>{})});['pointerdown','keydown','touchend'].forEach(e=>addEventListener(e,r,{capture:true}));window.__craftAudio=L;})();</script>
+EOF
+)
+for f in site/*/index.html; do
+  [ -f "$f" ] || continue
+  grep -q 'data-craft-audio' "$f" && continue
+  awk -v s="$SHIM" '{print} /<head>/ && !d {print s; d=1}' "$f" > "$f.tmp" && mv "$f.tmp" "$f"
 done
 # Índice de versiones con todo lo instalado (no solo lo actualizado ahora)
 json="{"

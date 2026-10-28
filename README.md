@@ -43,6 +43,8 @@ Abre `http://<ip-del-servidor>:8099`.
 
 - **Cambiar el puerto:** `CRAFT_PORT=9000 docker compose up -d`, o pon `CRAFT_PORT=9000` en un archivo `.env`.
 - **Solo algunas apps:** `docker compose run --rm -e CRAFT_APPS="pdfcraft wordcraft gridcraft" actualizar`. La página de inicio sigue mostrando las 13; las que no descargues dan 404.
+- **Personalizar nombres e iconos:** crea `site/personalizar.json` (no se sube al repo), por ejemplo:
+  `{"titulo":"Mi suite","apps":{"pdfcraft":{"nombre":"PDF","desc":"Leer y firmar PDF","icono":"mis-iconos/pdf.png"}}}`
 - **Actualizar:** vuelve a lanzar `docker compose run --rm actualizar`. Solo descarga las apps que tengan versión nueva y no hace falta reiniciar nginx. Puedes programarlo, por ejemplo una vez por semana.
 
 ### Synology / Xpenology
@@ -69,6 +71,8 @@ Por HTTP las apps funcionan, pero los navegadores solo activan **WebGPU** y el *
 
 - Las apps están en **alfa**. Para trabajos importantes, guarda a menudo.
 - Los archivos se abren y se guardan con el selector de archivos y las descargas del navegador. No hay almacenamiento compartido en el servidor.
+- **Sonido:** algunos navegadores dejan en pausa el audio que la app crea al arrancar. `actualizar.sh` añade a cada app un pequeño parche que lo reanuda con el primer clic o toque.
+- **Firmar PDF:** PdfCraft web firma con un certificado en archivo (`.p12` / `.pfx`). Las tarjetas criptográficas (DNIe, tokens USB) no están disponibles desde el navegador.
 - La impresión desde la versión web de PdfCraft todavía no está disponible.
 - Solo se ha probado en redes locales. Si lo publicas en internet, protégelo con autenticación.
 
