@@ -1,0 +1,5 @@
+# Las apps se descargan con actualizar.sh; no se versionan
+site/*
+!site/index.html
+.env
+.DS_Store

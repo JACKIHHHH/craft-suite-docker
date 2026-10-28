@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Craft Suite">
+<link rel="apple-touch-icon" href="icons/photocraft.png">
+<link rel="icon" href="icons/photocraft.png">
+<title>Craft Suite</title>
+<style>
+:root{--bg:#f5f5f7;--card:#fff;--text:#1d1d1f;--muted:#6e6e73;--line:rgba(0,0,0,.08);--accent:#0071e3}
+@media (prefers-color-scheme:dark){:root{--bg:#000;--card:#1c1c1e;--text:#f5f5f7;--muted:#98989d;--line:rgba(255,255,255,.1);--accent:#2997ff}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+main{max-width:1080px;margin:0 auto;padding:48px 16px 40px}
+header h1{font:700 34px/1.1 -apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;letter-spacing:-.02em;margin:0}
+header p{color:var(--muted);margin:6px 0 28px;font-size:16px}
+h2{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:28px 0 10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+a.app{display:flex;gap:14px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;color:inherit;text-decoration:none;transition:transform .15s ease,box-shadow .15s ease}
+a.app:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.08)}
+a.app:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+a.app img{width:52px;height:52px;border-radius:12px;flex:none;background:var(--line)}
+.n{font-weight:600;font-size:16px}
+.d{color:var(--muted);font-size:13px}
+.v{color:var(--muted);font-size:11px;margin-top:2px;font-variant-numeric:tabular-nums}
+footer{color:var(--muted);font-size:12px;margin-top:36px;line-height:1.6}
+footer a{color:var(--accent)}
+</style>
+</head>
+<body>
+<main>
+<header>
+<h1>Craft Suite</h1>
+<p>Las apps de ArtCraft en el navegador. Todo se procesa en tu dispositivo: los archivos no pasan por el servidor.</p>
+</header>
+<div id="secciones"></div>
+<footer>
+Abrir y guardar se hace con el selector de archivos y las descargas del navegador.<br>
+Apps de <a href="https://github.com/storytold">storytold/ArtCraft</a> (alfa, Apache-2.0 / MIT). Este servidor no está afiliado a ArtCraft.
+</footer>
+</main>
+<script>
+const grupos=[
+ ["Creatividad",[
+  ["photocraft","PhotoCraft","Edición de imágenes · como Photoshop"],
+  ["vectorcraft","VectorCraft","Ilustración vectorial · como Illustrator"],
+  ["designcraft","DesignCraft","Maquetación · como InDesign"],
+  ["lightcraft","LightCraft","Revelado RAW · como Lightroom"],
+  ["figcraft","FigCraft","Diseño de interfaces · como Figma"]]],
+ ["Vídeo y audio",[
+  ["filmcraft","FilmCraft","Edición de vídeo · como Premiere Pro"],
+  ["effectcraft","EffectCraft","Animación y efectos · como After Effects"],
+  ["soundcraft","SoundCraft","Audio · como Audition"]]],
+ ["Documentos y oficina",[
+  ["pdfcraft","PdfCraft","Leer, editar y firmar PDF · como Acrobat"],
+  ["wordcraft","WordCraft","Documentos · como Word"],
+  ["gridcraft","GridCraft","Hojas de cálculo · como Excel"],
+  ["deckcraft","DeckCraft","Presentaciones · como PowerPoint"],
+  ["cadcraft","CADCraft","Dibujo técnico · como AutoCAD"]]]
+];
+// Sin HTTPS no hay WebGPU y el modo automático puede quedarse en negro: forzamos WebGL2
+const q=window.isSecureContext?"":"?webgl";
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function pinta(ver){
+ document.getElementById("secciones").innerHTML=grupos.map(([t,apps])=>
+  `<h2>${esc(t)}</h2><div class="grid">`+apps.map(([id,n,d])=>
+   `<a class="app" href="${id}/${q}"><img src="icons/${id}.png" alt="" loading="lazy"><div><div class="n">${esc(n)}</div><div class="d">${esc(d)}</div>${ver[id]?`<div class="v">v${esc(ver[id])}</div>`:""}</div></a>`
+  ).join("")+`</div>`).join("");
+}
+pinta({});
+fetch("versiones.json",{cache:"no-cache"}).then(r=>r.json()).then(pinta).catch(()=>{});
+</script>
+</body>
+</html>
